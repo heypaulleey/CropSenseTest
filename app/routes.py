@@ -3,8 +3,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key'
-
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
 # Initialize Firebase Admin SDK
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase-adminsdk.json")  # Replace with your key filename
