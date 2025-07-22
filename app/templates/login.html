@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CropSense Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" />
+</head>
+<body>
+
+  <!-- === DESKTOP VIEW === -->
+  <div class="left-panel">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo" />
+    <h2>WELCOME TO</h2>
+    <h1>CROPSENSE</h1>
+    <p>
+      CropSense is a soil compatibility assessment system exclusively for the Department of Agriculture – Claveria, Misamis Oriental...
+    </p>
+  </div>
+
+  <div class="right-panel">
+    <div class="login-box">
+      <h2>Username:</h2>
+      <input type="email" id="email-desktop" placeholder="Admin@gmail.com" required />
+
+      <h2>Password:</h2>
+      <input type="password" id="password-desktop" placeholder="**********" required />
+
+      <a href="#">Forgot Password</a>
+      <button id="login-btn-desktop">Log in</button>
+    </div>
+  </div>
+
+  <!-- === MOBILE VIEW ONLY === -->
+  <div class="mobile-panel">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo" />
+    <div class="welcome">
+      <h2>WELCOME TO</h2>
+      <h1>CROPSENSE</h1>
+    </div>
+
+    <div class="login-box">
+      <label for="username">Username:</label>
+      <input type="email" id="email-mobile" placeholder="Admin@gmail.com" required>
+
+      <label for="password">Password:</label>
+      <input type="password" id="password-mobile" placeholder="************" required>
+
+      <a href="#">Forgot Password</a>
+      <button class="login-btn" id="login-btn-mobile">Log in</button>
+    </div>
+
+    <p style="text-align: center;">
+      <i>CropSense</i> is a soil compatibility assessment system exclusively for the Department of Agriculture – Claveria, Misamis Oriental...
+    </p>
+  </div>
+
+  <div class="footer">
+    © 2025 CropSense | Department of Agriculture – Claveria, Misamis Oriental<br />
+    Developed by BSIT Students, University of Science and Technology of Southern Philippines<br />
+    For official use only. All rights reserved.
+  </div>
+
+  <!-- Firebase Auth Script -->
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBTy5e4nNX952J-5Z66lY2FDlH_EXPl_mk",
+  authDomain: "cropsense-4f5ad.firebaseapp.com",
+  projectId: "cropsense-4f5ad",
+  storageBucket: "cropsense-4f5ad.appspot.com",
+  messagingSenderId: "764199125399",
+  appId: "1:764199125399:web:202565871026725442c4d2",
+  measurementId: "G-ZKRCCTYR63"
+};
+
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  async function login(email, password) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await userCredential.user.getIdToken();
+
+      // Send token to Flask backend
+      const res = await fetch("/sessionLogin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken })
+      });
+
+      if (res.ok) {
+        window.location.href = "/dashboard";
+      } else {
+        const data = await res.json();
+        alert("Login failed: " + data.error);
+      }
+
+    } catch (error) {
+      alert("Firebase Auth Error: " + error.message);
+    }
+  }
+
+  // Connect to your login button
+  document.getElementById("login-btn-desktop")?.addEventListener("click", () => {
+    const email = document.getElementById("email-desktop").value;
+    const password = document.getElementById("password-desktop").value;
+    login(email, password);
+  });
+
+  document.getElementById("login-btn-mobile")?.addEventListener("click", () => {
+    const email = document.getElementById("email-mobile").value;
+    const password = document.getElementById("password-mobile").value;
+    login(email, password);
+  });
+ 
+  </script>
+</body>
+</html>

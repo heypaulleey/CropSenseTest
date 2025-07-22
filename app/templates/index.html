@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CropSense - Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+
+  <style>
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .menu-item, .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+  </style>
+
+</head>
+<body>
+
+  <!-- DESKTOP HEADER -->
+  <div class="top-bar">
+    <div><strong>CROPSENSE</strong></div>
+    <div class="right">
+      Welcome, User! <a href="#" onclick="confirmLogout(event)">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                      </a>
+
+
+    </div>
+  </div>
+
+  <!-- MOBILE HEADER -->
+  <header class="mobile-header">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="DA Logo">
+    <h1>CROPSENSE</h1>
+  </header>
+
+  <!-- MOBILE MENU BAR -->
+  <div class="mobile-menu-bar" onclick="toggleMobileDropdown()">
+    <span>Menu</span>
+    <span class="menu-icon">&#9776;</span>
+  </div>
+
+  <!-- MOBILE DROPDOWN MENU -->
+<div class="mobile-dropdown" id="mobileDropdown">
+  <a class="menu-item active" href="/"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+  <a class="menu-item active" href="/"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+  <a class="menu-item" href="{{ url_for('soil_reports') }}"><i class="fas fa-file-alt"></i><span>Soil Test Results</span></a>
+  <a class="menu-item" href="{{ url_for('recent_reports') }}"><i class="fas fa-clock"></i><span>Recent Reports</span></a>
+  <a class="menu-item" href="{{ url_for('help') }}"><i class="fas fa-question-circle"></i><span>Help/User Guide</span></a>
+  <a class="menu-item" href="{{ url_for('about') }}"><i class="fas fa-info-circle"></i><span>About CropSense</span></a>
+  <div class="bottom-item">
+    <span>Hi, User</span>
+    <a href="#" onclick="confirmLogout(event)">
+      <i class="fas fa-sign-out-alt"></i> Log Out
+    </a>
+  </div>
+</div>
+
+
+  <!-- DESKTOP SIDEBAR + CONTENT -->
+  <div class="container">
+    <div class="sidebar">
+      <a href="/dashboard"><img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo" /></a>
+      <div class="role">Admin</div>
+      <a class="nav-item active" href="/"><i class="fa-solid fa-gauge"></i> <span>Dashboard</span></a>
+      <a class="nav-item" href="{{ url_for('soil_reports') }}"><i class="fa-solid fa-vial"></i> <span>Test Results</span></a>
+      <a class="nav-item" href="{{ url_for('recent_reports') }}"><i class="fa-solid fa-clock-rotate-left"></i> <span>Recent Reports</span></a>
+      <a class="nav-item" href="{{ url_for('help') }}"><i class="fa-solid fa-circle-question"></i> <span>Help/User Guide</span></a>
+      <a class="nav-item" href="{{ url_for('about') }}"><i class="fa-solid fa-circle-info"></i> <span>About CropSense</span></a>
+    </div>
+
+
+    <div class="content">
+      <h2>Dashboard</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>👥 Total Sessions</h3>
+          <p style="font-size: 1.5rem; font-weight: bold;">125</p>
+        </div>
+        <div class="card">
+          <h3>🌱 Total Soil Tests</h3>
+          <p style="font-size: 1.5rem; font-weight: bold;">87</p>
+        </div>
+        <div class="card">
+          <h3>✅ Compatibility Rate</h3>
+          <p style="font-size: 1.5rem; font-weight: bold;">76%</p>
+        </div>
+        <div class="card">
+          <h3>🥇 Most Compatible Crop</h3>
+          <p style="font-size: 1.5rem; font-weight: bold;">Corn</p>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="card" style="margin-top: 30px;">
+        <h3>Soil Compatibility per Crop</h3>
+        <canvas id="barChart" height="150"></canvas>
+      </div>
+
+      <div class="card" style="margin-top: 30px;">
+        <h3>Sessions Over Time</h3>
+        <canvas id="lineChart" height="150"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    © 2025 CropSense | Department of Agriculture – Claveria, Misamis Oriental<br>
+    Developed by BSIT Students, University of Science and Technology of Southern Philippines<br>
+    For official use only. All rights reserved.
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+      function confirmLogout(event) {
+        event.preventDefault();
+        document.getElementById("logoutModal").style.display = "flex";
+      }
+
+      function closeLogoutModal() {
+        document.getElementById("logoutModal").style.display = "none";
+      }
+
+      function proceedLogout() {
+        window.location.href = "/logout";
+      }
+  </script>
+
+  <script>
+    
+    function toggleMobileDropdown() {
+      document.getElementById('mobileDropdown').classList.toggle('show');
+    }
+
+    window.addEventListener('resize', function () {
+      const dropdown = document.getElementById('mobileDropdown');
+      if (window.innerWidth > 768 && dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      }
+    });
+  </script>
+    <!-- Chart Scripts -->
+  <script>
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Corn', 'Rice', 'Tomato', 'Onion', 'Lettuce'],
+        datasets: [{
+          label: 'Compatible Samples',
+          data: [12, 9, 7, 5, 3],
+          backgroundColor: '#f1b700'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Sessions',
+          data: [5, 12, 20, 18, 25, 30],
+          borderColor: '#f1b700',
+          backgroundColor: 'rgba(241, 183, 0, 0.2)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  </script>
+  <!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal-overlay">
+  <div class="modal-box">
+    <h3>Confirm Logout</h3>
+    <p>Are you sure you want to log out?</p>
+    <div class="modal-buttons">
+      <button onclick="proceedLogout()">Yes, Logout</button>
+      <button onclick="closeLogoutModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
